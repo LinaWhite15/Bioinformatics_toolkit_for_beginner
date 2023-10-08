@@ -1,5 +1,5 @@
-from modules.fastq_toolkit import
-from modules.protein_toolkit import
+from modules.fastq_toolkit import *
+from modules.protein_toolkit import *
 
 def print_result(result: list, corrupt_seqs: list):
     len_seq, len_corr_seq = len(result), len(corrupt_seqs)
