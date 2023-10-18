@@ -22,6 +22,7 @@ def read_fastq(input_path: str) -> Dict[str, Tuple[str, str,str]]:
         fastq = dict(zip(titles, val))
     return fastq
 
+
 def write_fastq(filtered_fasq: dict, output_filename: str) -> None:
     if not os.path.exists('fastq_filtrator_resuls'):
         os.mkdir('fastq_filtrator_resuls')
@@ -46,7 +47,9 @@ def print_result(result: list, corrupt_seqs: list):
         print(f"{len_seq} sequence(s) out of {len_seq + len_corr_seq} given have been processed successfully.")
         print(f"{len_corr_seq} has been recognized as corrupted, i.e. non-protein")
 
+
 OPERATIONS = {"content_check": aa_content_check, "seq_length": seq_length, "protein_formula": protein_formula, "protein_mass": protein_mass, "charge": aa_chain_charge}
+
 
 def protein_processing(*args, abbreviation: int = 1):
     """
