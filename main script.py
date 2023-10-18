@@ -1,5 +1,37 @@
 from modules.fastq_toolkit import *
 from modules.protein_toolkit import *
+import os
+
+def read_fastq(input_path: str) -> Dict[str, Tuple[str, str,str]]:
+    with open(input_path, 'r') as file:
+        titles = []
+        contigs = []
+        comms = []
+        quals = []
+        for line in file:
+            if line.startswith('@SRX'):
+                name = line.strip('\n')
+                titles.append(name)
+                contig = file.readline().strip('\n')
+                contigs.append(contig)
+                comm = file.readline().strip('\n')
+                comms.append(comm)
+                qual = file.readline().strip('\n')
+                quals.append(qual)
+        val = list(zip(contigs, comms, quals))
+        fastq = dict(zip(titles, val))
+    return fastq
+
+def write_fastq(filtered_fasq: dict, output_filename: str) -> None:
+    if not os.path.exists('fastq_filtrator_resuls'):
+        os.mkdir('fastq_filtrator_resuls')
+    with open(f'fastq_filtrator_resuls.fastq', 'w') as output_file:
+        for title, val in filtered_seqs.items():
+            output_file.write(f'{title}\n')
+            output_file.write(f'{val[0]}\n')
+            output_file.write(f'{val[1]}\n')
+            output_file.write(f'{val[2]}\n')
+
 
 def print_result(result: list, corrupt_seqs: list):
     len_seq, len_corr_seq = len(result), len(corrupt_seqs)
@@ -44,18 +76,16 @@ def protein_processing(*args, abbreviation: int = 1):
     return result, corrupt_seqs
 
 
-def filter_fastq(seqs:dict, gc_bounds=(0,100), length_bounds=(0, 2**23), quality_threshold=0):
-    """
-    The function filtering FastQ sequences using parameters:
-    seqs: dictionary with file`s contents
-    gc_bounds: specified GC content
-    length_bounds: specified sequence length limits
-    """
+def filter_fastq(input_path: str, gc_bounds=(0,100), length_bounds=(0, 2**23), quality_threshold=0, output_filename = ''):
     for name, seq in seqs.items():
        gc_count = GC_content(seq)
        seq_length = length_seq(seq)
        average_quality_score = quality_seq(name)
 
+    if output_filename is None:
+        output_filename = os.path.split(input_path)[-1]
+
+    seqs = read_fastq(input_path)
     filtered_seqs = {}
 
     lowergc, uppergc = gc_bounds
@@ -66,4 +96,4 @@ def filter_fastq(seqs:dict, gc_bounds=(0,100), length_bounds=(0, 2**23), quality
         if quality_threshold <= average_quality_score:
           filtered_seqs[name] = seq[name]
 
-    return filtered_seqs
+    write_fastq(filtered_seqs, output_filename)
